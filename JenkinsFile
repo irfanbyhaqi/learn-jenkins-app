@@ -13,10 +13,10 @@ pipeline {
                 sh '''
                     ls -la
                     node -v
-                    npm -n
+                    npm -v
                     npm ci
                     npm run build
-                    ls -la
+                    ls -la  
                 '''
             }
         }
