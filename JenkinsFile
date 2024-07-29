@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:18-alpine'
-            reuseNode true
-        }
-    }
+    agent any
 
     environment {
         NETLIFY_SITE_ID = 'd960072f-8128-4943-9d2e-e2e679d86c21'
@@ -14,6 +9,12 @@ pipeline {
 
     stages {
         stage('Build') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
             steps {
                 sh '''
                     ls -la
@@ -29,6 +30,12 @@ pipeline {
         stage('Testing'){
             parallel {
                 stage('Unit Test') {
+                    agent {
+                        docker {
+                            image 'node:18-alpine'
+                            reuseNode true
+                        }
+                    }
                     steps {
                         sh '''
                             test -f build/index.html
@@ -44,6 +51,12 @@ pipeline {
                 }
 
                 stage('E2E') {
+                    agent {
+                        docker {
+                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                            reuseNode true
+                        }
+                    }
                     steps {
                         sh '''
                             npm install serve
@@ -74,7 +87,22 @@ pipeline {
             }
         }
 
+        stage("Approval") {
+            steps {
+                timeout(time: 15, unit: 'MINUTES') {
+                    input message: "Do you want to deploy to production?", ok: "Yes"
+                }
+            }
+        }
+
         stage('Deploy Prod') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+
             steps {
                 sh '''
                     echo "Deploying to Netlify site $NETLIFY_SITE_ID"
@@ -85,6 +113,13 @@ pipeline {
         }
 
         stage('Prod E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    reuseNode true
+                }
+            }
+
             environment {
                 CI_ENVIRONMENT_URL='https://playful-kelpie-52a9b5.netlify.app'
             }
