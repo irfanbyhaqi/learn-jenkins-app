@@ -82,14 +82,15 @@ pipeline {
                     reuseNode true
                 }
             }
-            
+
             steps {
                 sh '''
-                    npm install netlify-cli
+                    npm install netlify-cli node-jq
                     node_modules/.bin/netlify --version
                     echo "Deploying to Netlify site $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify link --auth=$NETLIFY_AUTH_TOKEN
-                    node_modules/.bin/netlify deploy --dir=build
+                    node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
+                    node_modules/.bin/netlify -r '.deploy_url' deploy-output.json
                 '''
             }
         }
