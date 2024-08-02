@@ -118,7 +118,7 @@ pipeline {
             }
 
             environment {
-                CI_ENVIRONMENT_URL = 'YOUR NETLIFY SITE URL'
+                CI_ENVIRONMENT_URL = 'https://playful-kelpie-52a9b5.netlify.app/'
             }
 
             steps {
